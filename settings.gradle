@@ -1,0 +1,2 @@
+rootProject.name = '2022-12-java-plotnikov'
+include 'hw01-gradle'
