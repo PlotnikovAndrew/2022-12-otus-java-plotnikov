@@ -3,9 +3,11 @@ package homework;
 
 import java.util.*;
 
+import static java.util.Objects.isNull;
+
 public class CustomerService {
 
-    private TreeMap <Customer, String> treeMap = new TreeMap<>(new Comparator<Customer>() {
+    private final NavigableMap<Customer, String> TREE_MAP = new TreeMap<>(new Comparator<Customer>() {
         @Override
         public int compare(Customer o1, Customer o2) {
             Long scores1 = o1.getScores();
@@ -18,8 +20,8 @@ public class CustomerService {
 
     public Map.Entry<Customer, String> getSmallest() {
         //Возможно, чтобы реализовать этот метод, потребуется посмотреть как Map.Entry сделан в jdk
-        Customer customerNew = treeMap.firstKey();
-        String stringValue = treeMap.get(customerNew);
+        Customer customerNew = TREE_MAP.firstKey();
+        String stringValue = TREE_MAP.get(customerNew);
         Customer customerClone;
 
         try {
@@ -32,11 +34,11 @@ public class CustomerService {
     }
 
     public Map.Entry<Customer, String> getNext(Customer customer) {
-        Customer customerNew = treeMap.higherKey(customer);
-        if (customerNew == null){
+        Customer customerNew = TREE_MAP.higherKey(customer);
+        if (isNull(customerNew)) {
             return null;
         }
-        String stringValue = treeMap.get(customerNew);
+        String stringValue = TREE_MAP.get(customerNew);
         Customer customerClone;
 
         try {
@@ -45,11 +47,10 @@ public class CustomerService {
             throw new RuntimeException(e);
         }
 
-        return new AbstractMap.SimpleEntry<>(customerClone, stringValue);
+        return Map.entry(customerClone, stringValue);
     }
 
     public void add(Customer customer, String data) {
-        treeMap.put(customer, data);
-
+        TREE_MAP.put(customer, data);
     }
 }
