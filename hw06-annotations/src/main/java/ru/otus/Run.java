@@ -24,7 +24,9 @@ public class Run {
         this.clazz = clazz;
 
         this.splitMethods();
+    }
 
+    public void runTests(){
         for (Method method : testMethods) {
             runTests++;
             executeTest(method);
