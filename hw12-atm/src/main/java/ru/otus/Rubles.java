@@ -20,5 +20,4 @@ public enum Rubles {
         return value;
     }
 
-
 }

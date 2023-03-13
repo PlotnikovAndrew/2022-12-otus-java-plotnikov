@@ -2,10 +2,7 @@ package ru.otus;
 
 import ru.otus.Interface.VaultATM;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class VaultATMImpl implements VaultATM {
 
@@ -20,11 +17,10 @@ public class VaultATMImpl implements VaultATM {
         }
         this.countBalance();
         this.searchSmallestBanknoteInVault();
-        /*TODO
-        System.out.println(moneyInVault);
-        System.out.println(cellsForMoney);
-        System.out.println(smallestBanknotesValue);
-        */
+        //TODO
+//        System.out.println(moneyInVault);
+//        System.out.println(cellsForMoney);
+//        System.out.println(smallestBanknotesValue);
     }
 
 
@@ -61,6 +57,15 @@ public class VaultATMImpl implements VaultATM {
             throw new RuntimeException("The amount must be a multiple of " + smallestBanknotesValue);
         }
 
+        List<Integer> numbersOfBanknotesList = (ArrayList<Integer>) makeArrayList(cellsForMoney.values());
+        List<Rubles> rublesOfValueList = (ArrayList<Rubles>) makeArrayList(cellsForMoney.keySet());
+        //TODO
+        System.out.println(numbersOfBanknotesList);
+        System.out.println(rublesOfValueList);
+        int val = value;
+        for(int i = numbersOfBanknotesList.size()-1; i >= 0; i--){
+            val = logic(val, rublesOfValueList.get(i), numbersOfBanknotesList.get(i));
+        }
     }
 
     private void countBalance(){
@@ -79,5 +84,26 @@ public class VaultATMImpl implements VaultATM {
         }
         //TODO
         System.out.println(smallestBanknotesValue);
+    }
+
+    public int logic(int value, Rubles rubles, int numberOfBanknotes){
+//        Collection<Integer> s = cellsForMoney.values();
+        while (value >= rubles.getValue() && numberOfBanknotes > 0){
+            value = value - rubles.getValue();
+            numberOfBanknotes--;
+            //TODO
+            System.out.println("Осталось выдать: " + value);
+            System.out.println("Остальсь банкнот: " + numberOfBanknotes + " " + rubles.getValue());
+        }
+        return value;
+    }
+
+    private List<?> makeArrayList(Collection<?> collection){
+        List objectArrayList = new ArrayList<>(collection.size());
+        for (var i : collection){
+            objectArrayList.add(i);
+//            System.out.println(objectArrayList);
+        }
+        return objectArrayList;
     }
 }
