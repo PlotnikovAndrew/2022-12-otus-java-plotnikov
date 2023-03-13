@@ -27,7 +27,8 @@ public class Main {
 
 //        q.getOutMoney(651);
 //        q.logic(54500, Rubles.RUB_5000,u.get(Rubles.RUB_5000));
-        q.getOutMoney(47150);
+        q.getOutMoney(400350);
+        q.getOutMoney(484650);
 
 
     }

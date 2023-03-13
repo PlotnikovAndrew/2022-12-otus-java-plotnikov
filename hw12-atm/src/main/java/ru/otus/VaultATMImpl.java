@@ -1,7 +1,6 @@
 package ru.otus;
 
 import ru.otus.Interface.VaultATM;
-
 import java.util.*;
 
 public class VaultATMImpl implements VaultATM {
@@ -33,6 +32,9 @@ public class VaultATMImpl implements VaultATM {
     public void putMoney(HashMap<Rubles, Integer> putMoneyMap) {
         for (Rubles rubles : putMoneyMap.keySet()) {
             Integer numberOfBanknotes = cellsForMoney.get(rubles);
+//            if (numberOfBanknotes < 0){
+//                throw new RuntimeException("Negative number of banknotes");
+//            }
             Integer addBanknotes = putMoneyMap.get(rubles);
             cellsForMoney.put(rubles, numberOfBanknotes + addBanknotes);
             System.out.println(cellsForMoney);
@@ -56,16 +58,25 @@ public class VaultATMImpl implements VaultATM {
         if ((value % smallestBanknotesValue) != 0){
             throw new RuntimeException("The amount must be a multiple of " + smallestBanknotesValue);
         }
-
-        List<Integer> numbersOfBanknotesList = (ArrayList<Integer>) makeArrayList(cellsForMoney.values());
-        List<Rubles> rublesOfValueList = (ArrayList<Rubles>) makeArrayList(cellsForMoney.keySet());
+        if (value <= 0){
+            throw new RuntimeException("Bad Request");
+        }
+        //TODO
+        List<Integer> numbersOfBanknotesList = (List<Integer>) makeList(cellsForMoney.values());
+        List<Rubles> rublesOfValueList = (List<Rubles>) makeList(cellsForMoney.keySet());
         //TODO
         System.out.println(numbersOfBanknotesList);
         System.out.println(rublesOfValueList);
         int val = value;
         for(int i = numbersOfBanknotesList.size()-1; i >= 0; i--){
+            if (val < rublesOfValueList.get(i).getValue()){
+                continue;
+            }
             val = logic(val, rublesOfValueList.get(i), numbersOfBanknotesList.get(i));
         }
+        this.countBalance();
+        this.searchSmallestBanknoteInVault();
+        System.out.println(moneyInVault);
     }
 
     private void countBalance(){
@@ -87,7 +98,6 @@ public class VaultATMImpl implements VaultATM {
     }
 
     public int logic(int value, Rubles rubles, int numberOfBanknotes){
-//        Collection<Integer> s = cellsForMoney.values();
         while (value >= rubles.getValue() && numberOfBanknotes > 0){
             value = value - rubles.getValue();
             numberOfBanknotes--;
@@ -95,10 +105,14 @@ public class VaultATMImpl implements VaultATM {
             System.out.println("Осталось выдать: " + value);
             System.out.println("Остальсь банкнот: " + numberOfBanknotes + " " + rubles.getValue());
         }
+        cellsForMoney.put(rubles,numberOfBanknotes);
+        //TODO
+        System.out.println(cellsForMoney.keySet());
+        System.out.println(cellsForMoney.values());
         return value;
     }
 
-    private List<?> makeArrayList(Collection<?> collection){
+    private List<?> makeList(Collection<?> collection){
         List objectArrayList = new ArrayList<>(collection.size());
         for (var i : collection){
             objectArrayList.add(i);
