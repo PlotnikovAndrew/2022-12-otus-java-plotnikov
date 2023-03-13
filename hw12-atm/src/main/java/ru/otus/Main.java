@@ -7,11 +7,11 @@ public class Main {
     public static void main(String[] args) {
         VaultATMImpl q = new VaultATMImpl();
         System.out.println("====================");
-        q.putMoney(Rubles.RUB_50,500);
+        q.putMoney(Rubles.RUB_50,-100);
         System.out.println("====================");
 
         HashMap<Rubles, Integer> u = new HashMap<>();
-        u.put(Rubles.RUB_50, 1);
+//        u.put(Rubles.RUB_50, 1);
         u.put(Rubles.RUB_100, 1);
         u.put(Rubles.RUB_200, 1);
         u.put(Rubles.RUB_500, 1);
@@ -22,6 +22,10 @@ public class Main {
         q.putMoney(u);
 
         q.checkBalance();
+
+        System.out.println("====================");
+
+//        q.getOutMoney(651);
 
 
     }
