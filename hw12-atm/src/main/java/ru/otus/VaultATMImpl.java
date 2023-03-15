@@ -1,123 +1,128 @@
 package ru.otus;
 
 import ru.otus.Interface.VaultATM;
+
 import java.util.*;
 
 public class VaultATMImpl implements VaultATM {
 
-    private final Map<Rubles, Integer> cellsForMoney = new TreeMap<>();
+    private final NavigableMap<Rubles, Integer> cellsForMoney = new TreeMap<>();
     private int moneyInVault = 0;
     private int smallestBanknotesValue;
 
-
-    public VaultATMImpl() {
-        for (Rubles rub : Rubles.values()) {
-            cellsForMoney.put(rub, 100);
+    public VaultATMImpl(Map<Rubles, Integer> initialBanknotesInVault) {
+        for (Rubles rubles : Rubles.values()) {
+            this.cellsForMoney.put(rubles, 0);
+        }
+        for (Rubles rubles : initialBanknotesInVault.keySet()) {
+            this.cellsForMoney.put(rubles, initialBanknotesInVault.get(rubles));
         }
         this.countBalance();
         this.searchSmallestBanknoteInVault();
-        //TODO
-//        System.out.println(moneyInVault);
-//        System.out.println(cellsForMoney);
-//        System.out.println(smallestBanknotesValue);
     }
-
 
     @Override
     public void checkBalance() {
-        System.out.println(moneyInVault);
+        System.out.println("Balance now: " + moneyInVault);
     }
 
     @Override
-    public void putMoney(HashMap<Rubles, Integer> putMoneyMap) {
+    public void putMoney(Map<Rubles, Integer> putMoneyMap) {
+        System.out.print("before putMoney: ");
+        this.printCellsForMoney();
         for (Rubles rubles : putMoneyMap.keySet()) {
             Integer numberOfBanknotes = cellsForMoney.get(rubles);
-//            if (numberOfBanknotes < 0){
-//                throw new RuntimeException("Negative number of banknotes");
-//            }
             Integer addBanknotes = putMoneyMap.get(rubles);
+            if (addBanknotes < 0) {
+                throw new RuntimeException("Negative number of banknotes");
+            }
             cellsForMoney.put(rubles, numberOfBanknotes + addBanknotes);
-            System.out.println(cellsForMoney);
         }
         this.countBalance();
         this.searchSmallestBanknoteInVault();
-    }
-
-    @Override
-    public void putMoney(Rubles rubles, int numberOfBanknotes) {
-        HashMap<Rubles, Integer> putMoneyMap = new HashMap<>();
-        putMoneyMap.put(rubles, numberOfBanknotes);
-        this.putMoney(putMoneyMap);
+        System.out.print("after putMoney: ");
+        this.printCellsForMoney();
     }
 
     @Override
     public void getOutMoney(int value) {
-        if (value > this.moneyInVault){
-            throw new RuntimeException("Not enough money in the account");
-        }
-        if ((value % smallestBanknotesValue) != 0){
-            throw new RuntimeException("The amount must be a multiple of " + smallestBanknotesValue);
-        }
-        if (value <= 0){
-            throw new RuntimeException("Bad Request");
-        }
-        //TODO
-        List<Integer> numbersOfBanknotesList = (List<Integer>) makeList(cellsForMoney.values());
-        List<Rubles> rublesOfValueList = (List<Rubles>) makeList(cellsForMoney.keySet());
-        //TODO
-        System.out.println(numbersOfBanknotesList);
-        System.out.println(rublesOfValueList);
+
+        this.validationCheck(value);
+
+        System.out.print("before getOutMoney: ");
+        this.printCellsForMoney();
+
+        NavigableSet<Rubles> rublesSet = cellsForMoney.descendingKeySet();
+        List<Rubles> rublesList = new ArrayList<>(rublesSet);
+        List<Integer> numbersOfBanknotesList = this.createAndGetNumbersOfBanknotesList(rublesList);
+
         int val = value;
-        for(int i = numbersOfBanknotesList.size()-1; i >= 0; i--){
-            if (val < rublesOfValueList.get(i).getValue()){
+        for (int i = 0; i < numbersOfBanknotesList.size(); i++) {
+            if (val < rublesList.get(i).getValue() || numbersOfBanknotesList.get(i) == 0) {
                 continue;
             }
-            val = logic(val, rublesOfValueList.get(i), numbersOfBanknotesList.get(i));
+            val = getOutBanknotesOneDenomination(val, rublesList.get(i), numbersOfBanknotesList.get(i));
         }
         this.countBalance();
         this.searchSmallestBanknoteInVault();
-        System.out.println(moneyInVault);
+        this.checkBalance();
+
+        System.out.print("after getOutMoney: ");
+        this.printCellsForMoney();
     }
 
-    private void countBalance(){
+    private void countBalance() {
         moneyInVault = 0;
-        for (Rubles rubles : cellsForMoney.keySet()){
+        for (Rubles rubles : cellsForMoney.keySet()) {
             moneyInVault += rubles.getValue() * cellsForMoney.get(rubles);
         }
     }
 
-    private void searchSmallestBanknoteInVault(){
+    private void searchSmallestBanknoteInVault() {
         smallestBanknotesValue = Rubles.RUB_5000.getValue();
-        for (Rubles rubles : cellsForMoney.keySet()){
-            if (rubles.getValue() < smallestBanknotesValue && cellsForMoney.get(rubles) > 0){
+        for (Rubles rubles : cellsForMoney.keySet()) {
+            if (rubles.getValue() < smallestBanknotesValue && cellsForMoney.get(rubles) > 0) {
                 smallestBanknotesValue = rubles.getValue();
             }
         }
-        //TODO
-        System.out.println(smallestBanknotesValue);
     }
 
-    public int logic(int value, Rubles rubles, int numberOfBanknotes){
-        while (value >= rubles.getValue() && numberOfBanknotes > 0){
+    public int getOutBanknotesOneDenomination(int value, Rubles rubles, int numberOfBanknotes) {
+        int i = 0;
+        while (value >= rubles.getValue() && numberOfBanknotes > 0) {
             value = value - rubles.getValue();
             numberOfBanknotes--;
-            //TODO
-            System.out.println("Осталось выдать: " + value);
-            System.out.println("Остальсь банкнот: " + numberOfBanknotes + " " + rubles.getValue());
+            i++;
         }
-        cellsForMoney.put(rubles,numberOfBanknotes);
-        //TODO
-        System.out.println(cellsForMoney.keySet());
-        System.out.println(cellsForMoney.values());
+        cellsForMoney.put(rubles, numberOfBanknotes);
+        System.out.printf("Get %d banknotes, value %d rubles", i, rubles.getValue());
+        System.out.println(" ");
         return value;
     }
 
-    private List<?> makeList(Collection<?> collection){
-        List objectArrayList = new ArrayList<>(collection.size());
-        for (var i : collection){
-            objectArrayList.add(i);
-//            System.out.println(objectArrayList);
+    private void validationCheck(int value) {
+        if (value > this.moneyInVault) {
+            throw new RuntimeException("Not enough money in the account");
         }
-        return objectArrayList;
+        if ((value % smallestBanknotesValue) != 0) {
+            throw new RuntimeException("The amount must be a multiple of " + smallestBanknotesValue);
+        }
+        if (value <= 0) {
+            throw new RuntimeException("Bad Request");
+        }
     }
+
+    private List<Integer> createAndGetNumbersOfBanknotesList(List<Rubles> rublesList) {
+        List<Integer> numbersOfBanknotesList = new ArrayList<>();
+        for (Rubles rubles : rublesList) {
+            int numbersOfBanknote = cellsForMoney.get(rubles);
+            numbersOfBanknotesList.add(numbersOfBanknote);
+        }
+        return numbersOfBanknotesList;
+    }
+
+    private void printCellsForMoney() {
+        System.out.println(cellsForMoney);
+    }
+
 }
