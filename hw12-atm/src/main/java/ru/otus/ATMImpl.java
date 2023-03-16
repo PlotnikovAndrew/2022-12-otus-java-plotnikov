@@ -4,17 +4,18 @@ import ru.otus.Interface.Vault;
 
 import java.util.*;
 
-public class ATM implements ru.otus.Interface.ATM {
+public class ATMImpl implements ru.otus.Interface.ATM {
 
     private final Vault vault;
 
-    public ATM(Vault vault) {
+    public ATMImpl(Vault vault) {
         this.vault = vault;
     }
 
     @Override
-    public void checkBalance() {
+    public int checkBalance() {
         System.out.println("Balance now: " + this.vault.getMoneyInVault());
+        return this.vault.getMoneyInVault();
     }
 
     @Override
@@ -31,48 +32,50 @@ public class ATM implements ru.otus.Interface.ATM {
         }
         this.vault.countBalance();
         this.vault.searchSmallestBanknoteInVault();
-        System.out.print("after putMoney: ");
-        this.printCellsForMoney();
     }
 
     @Override
-    public void getOutMoney(int value) {
-
+    public NavigableMap<Rubles, Integer> getOutMoney(int value) {
         this.validationCheck(value);
-
-        System.out.print("before getOutMoney: ");
-        this.printCellsForMoney();
 
         NavigableSet<Rubles> rublesSet = this.vault.getCellsForMoney().descendingKeySet();
         List<Rubles> rublesList = new ArrayList<>(rublesSet);
         List<Integer> numbersOfBanknotesList = this.createAndGetNumbersOfBanknotesList(rublesList);
 
         int val = value;
+        NavigableMap<Rubles, Integer> releasedAllBanknotes = new TreeMap<>();
         for (int i = 0; i < numbersOfBanknotesList.size(); i++) {
             if (val < rublesList.get(i).getValue() || numbersOfBanknotesList.get(i) == 0) {
                 continue;
             }
-            val = getOutBanknotesOneDenomination(val, rublesList.get(i), numbersOfBanknotesList.get(i));
+            HashMap<Rubles, Integer> releasedOneDenominationBanknote = getOutBanknotesOneDenomination(val, rublesList.get(i), numbersOfBanknotesList.get(i));
+            for (Rubles rubles : releasedOneDenominationBanknote.keySet()) {
+                releasedAllBanknotes.put(rubles, releasedOneDenominationBanknote.get(rubles));
+                val -= rubles.getValue() * releasedOneDenominationBanknote.get(rubles);
+            }
         }
         this.vault.countBalance();
         this.vault.searchSmallestBanknoteInVault();
-        this.checkBalance();
 
-        System.out.print("after getOutMoney: ");
-        this.printCellsForMoney();
+        System.out.println(releasedAllBanknotes);
+
+        return releasedAllBanknotes;
     }
 
-    private int getOutBanknotesOneDenomination(int value, Rubles rubles, int numberOfBanknotes) {
-        int i = 0;
-        while (value >= rubles.getValue() && numberOfBanknotes > 0) {
+    private HashMap<Rubles, Integer> getOutBanknotesOneDenomination(int value, Rubles rubles, int numberOfBanknotesInVault) {
+        int releasedBanknotes = 0;
+
+        while (value >= rubles.getValue() && numberOfBanknotesInVault > 0) {
             value = value - rubles.getValue();
-            numberOfBanknotes--;
-            i++;
+            numberOfBanknotesInVault--;
+            releasedBanknotes++;
         }
-        this.vault.getCellsForMoney().put(rubles, numberOfBanknotes);
-        System.out.printf("Get %d banknotes, value %d rubles", i, rubles.getValue());
-        System.out.println(" ");
-        return value;
+
+        this.vault.getCellsForMoney().put(rubles, numberOfBanknotesInVault);
+
+        HashMap<Rubles, Integer> releasedOneDenominationBanknote = new HashMap<>();
+        releasedOneDenominationBanknote.put(rubles, releasedBanknotes);
+        return releasedOneDenominationBanknote;
     }
 
     private void validationCheck(int value) {

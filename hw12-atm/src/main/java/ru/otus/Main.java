@@ -17,8 +17,8 @@ public class Main {
 
         VaultImpl vault = new VaultImpl(initial);
 
-        ATM q = new ATM(vault);
-        q.getOutMoney(5222250);
+        ATMImpl q = new ATMImpl(vault);
+        q.getOutMoney(5222200);
 
         HashMap<Rubles, Integer> dop = new HashMap<>();
         dop.put(Rubles.RUB_50, 145);

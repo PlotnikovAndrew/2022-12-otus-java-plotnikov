@@ -3,13 +3,14 @@ package ru.otus.Interface;
 import ru.otus.Rubles;
 
 import java.util.Map;
+import java.util.NavigableMap;
 
 public interface ATM {
 
 
-    void checkBalance();
+    int checkBalance();
 
     void putMoney(Map<Rubles, Integer> putMoneyMap);
 
-    void getOutMoney(int value);
+    NavigableMap<Rubles, Integer> getOutMoney(int value);
 }
