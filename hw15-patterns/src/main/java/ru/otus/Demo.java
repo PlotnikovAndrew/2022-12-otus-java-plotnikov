@@ -13,7 +13,8 @@ public class Demo {
         List<Processor> processors = List.of(new ProcessorDateException(() -> LocalDateTime.now().withSecond(2)));
 //                new LoggerProcessor(new ProcessorUpperField10()));
 
-        var complexProcessor = new ComplexProcessor(processors, ex -> {});
+        var complexProcessor = new ComplexProcessor(processors, ex -> {
+        });
         var listenerPrinter = new ListenerPrinterConsole();
         complexProcessor.addListener(listenerPrinter);
 
