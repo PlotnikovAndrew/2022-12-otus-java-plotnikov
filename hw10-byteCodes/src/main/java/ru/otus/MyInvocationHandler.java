@@ -5,12 +5,12 @@ import ru.otus.annotations.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 
 public class MyInvocationHandler implements InvocationHandler {
 
     private final MyLoggingImpl myLoggingClass;
-    private final HashSet<Method> loggingMethods = new HashSet<>();
+    private final HashMap<Method, Boolean> loggingMethodsMap = new HashMap<>();
 
     public MyInvocationHandler(MyLoggingImpl myLoggingClass) {
         this.myLoggingClass = myLoggingClass;
@@ -18,11 +18,11 @@ public class MyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (this.loggingMethods.isEmpty()) {
+
+        if (this.loggingMethodsMap.isEmpty()) {
             this.searchLoggingMethods();
         }
-
-        if (loggingMethods.contains(method)) {
+        if (loggingMethodsMap.get(method)) {
             this.logging(method, args);
         }
 
@@ -39,10 +39,12 @@ public class MyInvocationHandler implements InvocationHandler {
     private void searchLoggingMethods() throws NoSuchMethodException {
         Class<?> clazz = myLoggingClass.getClass();
         for (Method method : clazz.getDeclaredMethods()) {
+            Class<?> clazzInterface = MyLoggingInterface.class;
+            Method methodThisInterface = clazzInterface.getDeclaredMethod(method.getName(), method.getParameterTypes());
             if (method.isAnnotationPresent(Log.class)) {
-                Class<?> clazzInterface = MyLoggingInterface.class;
-                Method methodThisInterface = clazzInterface.getDeclaredMethod(method.getName(), method.getParameterTypes());
-                loggingMethods.add(methodThisInterface);
+                loggingMethodsMap.put(methodThisInterface, true);
+            } else {
+                loggingMethodsMap.put(methodThisInterface, false);
             }
         }
     }
