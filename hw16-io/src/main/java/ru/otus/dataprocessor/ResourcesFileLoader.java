@@ -1,8 +1,11 @@
 package ru.otus.dataprocessor;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import ru.otus.model.Measurement;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class ResourcesFileLoader implements Loader {
@@ -15,25 +18,15 @@ public class ResourcesFileLoader implements Loader {
 
     @Override
     public List<Measurement> load() throws IOException {
-        try (var bufferedReader = new BufferedReader(new FileReader(this.fileName))){
-            System.out.println("text from the file:");
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                System.out.println(line);
-            }
-        }
-             //читает файл, парсит и возвращает результат
-        return null;
-    }
+        List<Measurement> measurementList;
 
-    public static void main(String[] args){
-        var inputDataFileName = "inputData.json";
-
-        ResourcesFileLoader resourcesFileLoader = new ResourcesFileLoader(inputDataFileName);
-        try {
-            resourcesFileLoader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        try (FileReader reader = new FileReader(this.fileName)) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<Measurement>>() {
+            }.getType();
+            measurementList = gson.fromJson(reader, type);
+            System.out.println(measurementList);
         }
+        return measurementList;
     }
 }

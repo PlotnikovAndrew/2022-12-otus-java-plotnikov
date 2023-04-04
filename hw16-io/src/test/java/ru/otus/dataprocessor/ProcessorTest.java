@@ -1,6 +1,5 @@
 package ru.otus.dataprocessor;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -45,4 +44,10 @@ class ProcessorTest {
         //обратите внимание: важен порядок ключей
         assertThat(serializedOutput).isEqualTo("{\"val1\":3.0,\"val2\":30.0,\"val3\":33.0}");
     }
+
+//    public static void main(String[] args) throws IOException {
+//        ProcessorTest processorTest = new ProcessorTest();
+//        Path path = Path.of("/home/andrey/otus/2022-12-otus-java-plotnikov/hw16-io/src/test/");
+//        processorTest.processingTest(path);
+//    }
 }
