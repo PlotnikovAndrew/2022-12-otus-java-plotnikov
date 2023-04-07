@@ -1,5 +1,6 @@
 package ru.otus.crm.model;
 
+import ru.otus.annotations.ConstructorJdbc;
 import ru.otus.annotations.Id;
 
 public class Manager {
@@ -15,7 +16,7 @@ public class Manager {
     public Manager(String label) {
         this.label = label;
     }
-
+    @ConstructorJdbc
     public Manager(Long no, String label, String param1) {
         this.no = no;
         this.label = label;

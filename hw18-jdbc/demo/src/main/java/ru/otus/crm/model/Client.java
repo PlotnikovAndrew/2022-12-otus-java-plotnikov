@@ -1,5 +1,6 @@
 package ru.otus.crm.model;
 
+import ru.otus.annotations.ConstructorJdbc;
 import ru.otus.annotations.Id;
 
 public class Client {
@@ -15,7 +16,7 @@ public class Client {
         this.id = null;
         this.name = name;
     }
-
+    @ConstructorJdbc
     public Client(Long id, String name) {
         this.id = id;
         this.name = name;

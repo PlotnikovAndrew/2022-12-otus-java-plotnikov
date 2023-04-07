@@ -1,5 +1,6 @@
 package ru.otus.jdbc.mapper;
 
+import ru.otus.annotations.ConstructorJdbc;
 import ru.otus.annotations.Id;
 
 import java.lang.reflect.Constructor;
@@ -26,12 +27,17 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
     }
 
     @Override
-    public Constructor getConstructor() throws NoSuchMethodException {
-        if (this.constructor == null) {
-            this.constructor = this.clazz.getConstructor();
+    public Constructor getConstructor() {
+
+        Constructor[] constructorArray = clazz.getConstructors();
+        for(Constructor constructor : constructorArray){
+            if(constructor.isAnnotationPresent(ConstructorJdbc.class)){
+                this.constructor = constructor;
+            } else {
+                throw new RuntimeException("Конструктор не задан");
+            }
         }
-//        return this.constructor;
-        return null;
+        return this.constructor;
     }
 
     @Override
