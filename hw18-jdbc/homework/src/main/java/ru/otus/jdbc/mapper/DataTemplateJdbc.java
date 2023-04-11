@@ -1,13 +1,16 @@
 package ru.otus.jdbc.mapper;
 
 import ru.otus.core.repository.DataTemplate;
+import ru.otus.core.repository.DataTemplateException;
 import ru.otus.core.repository.executor.DbExecutor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,10 +20,10 @@ import java.util.Optional;
 public class DataTemplateJdbc<T> implements DataTemplate<T> {
 
     private final DbExecutor dbExecutor;
-    private final EntitySQLMetaData entitySQLMetaData;
-    private final EntityClassMetaData entityClassMetaData;
+    private final EntitySQLMetaData<T> entitySQLMetaData;
+    private final EntityClassMetaData<T> entityClassMetaData;
 
-    public DataTemplateJdbc(DbExecutor dbExecutor, EntitySQLMetaData entitySQLMetaData, EntityClassMetaData entityClassMetaData) {
+    public DataTemplateJdbc(DbExecutor dbExecutor, EntitySQLMetaData<T> entitySQLMetaData, EntityClassMetaData<T> entityClassMetaData) {
         this.dbExecutor = dbExecutor;
         this.entitySQLMetaData = entitySQLMetaData;
         this.entityClassMetaData = entityClassMetaData;
@@ -28,29 +31,34 @@ public class DataTemplateJdbc<T> implements DataTemplate<T> {
 
     @Override
     public Optional<T> findById(Connection connection, long id) {
-        String findByIdSql = entitySQLMetaData.getSelectByIdSql();
-        return dbExecutor.executeSelect(connection, findByIdSql, List.of(id),
-                rs -> {
-                    try {
-                        if(rs.next()){
-                            T model = entityClassMetaData.getConstructor().newInstance();
 
-                            List<Field> fieldList = entityClassMetaData.getAllFields();
-                            for (Field field : fieldList) {
-                                field.setAccessible(true);
-                                field.set(model, rs.getObject(field.getName()));
-                        }
-                    } catch (SQLException | NoSuchMethodException | InstantiationException | IllegalAccessException |
-                             InvocationTargetException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-        throw new UnsupportedOperationException();
+        return dbExecutor.executeSelect(connection, entitySQLMetaData.getSelectByIdSql(), List.of(id), resultSet -> {
+            try {
+                if (resultSet.next()) {
+                    return entityClassMetaData.getConstructor().newInstance(getFieldsNameForRs(resultSet));
+                }
+            } catch (SQLException | IllegalAccessException | NoSuchMethodException | InstantiationException |
+                     InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
     }
 
     @Override
     public List<T> findAll(Connection connection) {
-        throw new UnsupportedOperationException();
+        return dbExecutor.executeSelect(connection, entitySQLMetaData.getSelectAllSql(), Collections.emptyList(), resultSet -> {
+            var clientList = new ArrayList<T>();
+            try {
+                while (resultSet.next()) {
+                    clientList.add(entityClassMetaData.getConstructor().newInstance(getFieldsNameForRs(resultSet)));
+                }
+                return clientList;
+            } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
+                throw new DataTemplateException(e);
+            }
+        }).orElseThrow(() -> new RuntimeException("Unexpected error"));
     }
 
     @Override
@@ -71,7 +79,7 @@ public class DataTemplateJdbc<T> implements DataTemplate<T> {
         dbExecutor.executeStatement(connection, updateSql, params);
     }
 
-    private List<Object> getParams(List<Field> fields, T client){
+    private List<Object> getParams(List<Field> fields, T client) {
 
         List<Object> params = new ArrayList<>();
 
@@ -86,5 +94,13 @@ public class DataTemplateJdbc<T> implements DataTemplate<T> {
         return params;
     }
 
-    private Object[] getParams(t)
+    private Object[] getFieldsNameForRs(ResultSet rs) throws IllegalAccessException, SQLException {
+        List<Field> fieldsList = entityClassMetaData.getFieldsWithoutId();
+        Object[] objects = new Object[fieldsList.size() + 1];
+        objects[0] = rs.getLong(entityClassMetaData.getIdField().getName());
+        for (int i = 1; i < fieldsList.size(); i++) {
+            objects[i] = rs.getString(fieldsList.get(i).getName());
+        }
+        return objects;
+    }
 }

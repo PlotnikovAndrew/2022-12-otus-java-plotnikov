@@ -12,8 +12,8 @@ import java.util.List;
 public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
 
     private final Class<T> clazz;
-    private Field idField = null;
-    private Constructor constructor = null;
+    private Field idField;
+    private Constructor<?> constructorJdbc;
     private final List<Field> allFields = new ArrayList<>();
     private final List<Field> fieldsWithoutId = new ArrayList<>();
 
@@ -23,39 +23,40 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
 
     @Override
     public String getName() {
-        return this.clazz.getName().toLowerCase();
+        return this.clazz.getSimpleName().toLowerCase();
     }
 
     @Override
-    public Constructor getConstructor() {
-
-        Constructor[] constructorArray = clazz.getConstructors();
-        for(Constructor constructor : constructorArray){
-            if(constructor.isAnnotationPresent(ConstructorJdbc.class)){
-                this.constructor = constructor;
-            } else {
-                throw new RuntimeException("Конструктор не задан");
+    public Constructor<?> getConstructor() {
+        if (constructorJdbc == null){
+            Constructor<?>[] constructorArray = clazz.getConstructors();
+            for(Constructor<?> constructor : constructorArray){
+                if(constructor.isAnnotationPresent(ConstructorJdbc.class)){
+                    this.constructorJdbc = constructor;
+                }
             }
         }
-        return this.constructor;
+        return this.constructorJdbc;
     }
 
     @Override
-    public Field getIdField() throws IllegalAccessException {
+    public Field getIdField() {
         if (this.idField == null) {
-            for (Field field : clazz.getFields()) {
+            for (Field field : clazz.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Id.class)) {
                     this.idField = field;
+
                 }
             }
         }
         return idField;
+
     }
 
     @Override
     public List<Field> getAllFields() {
         if (allFields.isEmpty()) {
-            Collections.addAll(allFields, clazz.getFields());
+            Collections.addAll(this.allFields, clazz.getDeclaredFields());
         }
         return this.allFields;
     }
@@ -63,7 +64,7 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData {
     @Override
     public List<Field> getFieldsWithoutId() {
         if (fieldsWithoutId.isEmpty()) {
-            for (Field field : clazz.getFields()) {
+            for (Field field : clazz.getDeclaredFields()) {
                 if (!field.isAnnotationPresent(Id.class)) {
                     this.fieldsWithoutId.add(field);
                 }

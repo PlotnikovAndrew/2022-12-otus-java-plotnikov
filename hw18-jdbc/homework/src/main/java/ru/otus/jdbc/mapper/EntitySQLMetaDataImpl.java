@@ -19,9 +19,8 @@ public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
     @Override
     public String getSelectByIdSql() {
         try {
-//            return "SELECT * FROM " + this.entityClassMetaData.getName() + " WHERE id = " + this.entityClassMetaData.getIdField().getName();
-            return String.format("SELECT * FROM %S WHERE id = %S",
-                    this.entityClassMetaData.getName(),
+            return String.format("SELECT * FROM %S WHERE %S = ?",
+                    this.entityClassMetaData.getName().toLowerCase(),
                     this.entityClassMetaData.getIdField().getName());
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -59,11 +58,11 @@ public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
     }
 
     private String getFieldsNameString() {
-        int size = entityClassMetaData.getAllFields().size();
+        int size = entityClassMetaData.getFieldsWithoutId().size();
         StringBuilder fieldsName = new StringBuilder();
         fieldsName.append("(");
         for (int i = 0; i < size; i++) {
-            Field field = entityClassMetaData.getAllFields().get(i);
+            Field field = entityClassMetaData.getFieldsWithoutId().get(i);
             if (i == size - 1) {
                 fieldsName.append(field.getName())
                         .append(")");
@@ -77,7 +76,7 @@ public class EntitySQLMetaDataImpl implements EntitySQLMetaData {
 
     private String getValuesPressHoldersString() {
         StringBuilder pressHolders = new StringBuilder();
-        int size = entityClassMetaData.getAllFields().size();
+        int size = entityClassMetaData.getFieldsWithoutId().size();
         pressHolders.append("(");
         for (int i = 0; i < size; i++) {
             if (i == size - 1) {
