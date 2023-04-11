@@ -7,6 +7,7 @@ import ru.otus.model.Measurement;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 
 public class ResourcesFileLoader implements Loader {
 
@@ -20,7 +21,7 @@ public class ResourcesFileLoader implements Loader {
     public List<Measurement> load() throws IOException {
         List<Measurement> measurementList;
 
-        try (FileReader reader = new FileReader(this.fileName)) {
+        try (FileReader reader = new FileReader(Objects.requireNonNull(ResourcesFileLoader.class.getClassLoader().getResource(this.fileName)).getPath())) {
             Gson gson = new Gson();
             Type type = new TypeToken<List<Measurement>>() {
             }.getType();
