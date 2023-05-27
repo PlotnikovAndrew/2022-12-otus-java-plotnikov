@@ -3,12 +3,13 @@ package ru.otus.crm.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Entity
 @Table(name = "phones")
 public class Phone {
     @Id
@@ -17,8 +18,8 @@ public class Phone {
     private Long id;
     @Column(name = "phone_number")
     private String phoneNumber;
-    @ManyToOne
-    @JoinColumn(name = "client")
+    @ManyToOne(targetEntity = Client.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "client_id")
     private Client client;
 
     public Phone(Long id, String phoneNumber) {

@@ -1,4 +1,4 @@
-package ru.otus.crm.model;
+package ru.otus.model;
 
 
 import jakarta.persistence.*;
@@ -12,23 +12,24 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "clients")
+@Table(name = "client")
 public class Client implements Cloneable {
 
     @Id
     @SequenceGenerator(name = "client_gen", sequenceName = "client_seq",
             initialValue = 1, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_gen")
     @Column(name = "id")
     private Long id;
 
     @Column(name = "name")
     private String name;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = Address.class, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "client")
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Phone> phoneList;
 
     public Client(String name) {
@@ -46,6 +47,14 @@ public class Client implements Cloneable {
         }
     }
 
+    public Client(Long id, String name, Address address, Phone phone){
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.phoneList.add(phone);
+    }
+
+
     public Client(Long id, String name) {
         this.id = id;
         this.name = name;
@@ -54,8 +63,14 @@ public class Client implements Cloneable {
     @Override
     public Client clone() {
         Client newClient = new Client(this.id, this.name);
-        newClient.setAddress(new Address(this.address.getId(), this.address.getStreet()));
-        newClient.setPhoneList(this.getPhoneList().stream().map(oldPhoneList -> new Phone(oldPhoneList.getId(), oldPhoneList.getPhoneNumber(), newClient)).toList());
+        if(this.address != null){
+            newClient.setAddress(new Address(this.address.getId(), this.address.getStreet()));
+        }
+        if(this.phoneList != null){
+            newClient.setPhoneList(this.getPhoneList().stream()
+                    .map(oldPhoneList -> new Phone(oldPhoneList.getId(), oldPhoneList.getPhoneNumber(), newClient))
+                    .toList());
+        }
         return newClient;
     }
 
