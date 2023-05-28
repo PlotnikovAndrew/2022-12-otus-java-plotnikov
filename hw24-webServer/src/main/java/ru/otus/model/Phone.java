@@ -26,6 +26,7 @@ public class Phone {
         this.id = id;
         this.phoneNumber = phoneNumber;
     }
+
     public Phone(String phoneNumber) {
         this.id = null;
         this.phoneNumber = phoneNumber;

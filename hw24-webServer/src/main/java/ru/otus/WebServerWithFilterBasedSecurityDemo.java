@@ -3,16 +3,11 @@ package ru.otus;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.hibernate.cfg.Configuration;
-import ru.otus.core.repository.DataTemplateHibernate;
-import ru.otus.core.repository.HibernateUtils;
+import ru.otus.core.repository.*;
 import ru.otus.core.sessionmanager.TransactionManagerHibernate;
 import ru.otus.dbmigrations.MigrationsExecutorFlyway;
-import ru.otus.model.Address;
-import ru.otus.model.Client;
-import ru.otus.model.Phone;
-import ru.otus.services.DbServiceClientImpl;
-import ru.otus.server.ClientWebServer;
-import ru.otus.server.ClientWebServerWithFilterBasedSecurity;
+import ru.otus.model.*;
+import ru.otus.server.*;
 import ru.otus.services.*;
 
 /*
@@ -22,10 +17,8 @@ import ru.otus.services.*;
     http://localhost:8080
 
     // Страница пользователей
-    http://localhost:8080/users
+    http://localhost:8080/clients
 
-    // REST сервис
-    http://localhost:8080/api/user/3
 */
 public class WebServerWithFilterBasedSecurityDemo {
     private static final int WEB_SERVER_PORT = 8080;
@@ -50,16 +43,12 @@ public class WebServerWithFilterBasedSecurityDemo {
 
         var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
 
-//        UserDao userDao = new InMemoryUserDao();
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
         AuthService authService = new AuthServiceImpl();
 
-//        UsersWebServer usersWebServer = new UsersWebServerWithFilterBasedSecurity(WEB_SERVER_PORT,
-//                authService, userDao, gson, templateProcessor);
-
         ClientWebServer clientWebServer = new ClientWebServerWithFilterBasedSecurity(WEB_SERVER_PORT,
-        authService, dbServiceClient, gson, templateProcessor);
+                authService, dbServiceClient, gson, templateProcessor);
 
         clientWebServer.start();
         clientWebServer.join();

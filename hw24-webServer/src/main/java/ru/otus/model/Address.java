@@ -22,10 +22,6 @@ public class Address {
     @Column(name = "street")
     private String street;
 
-//    public Address(String street) {
-//        this.id = null;
-//        this.street = street;
-//    }
     public Address(Long id, String street) {
         this.id = id;
         this.street = street;

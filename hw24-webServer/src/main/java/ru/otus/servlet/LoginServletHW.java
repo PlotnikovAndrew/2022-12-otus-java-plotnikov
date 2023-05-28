@@ -1,6 +1,5 @@
 package ru.otus.servlet;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +16,7 @@ public class LoginServletHW extends HttpServlet {
 
     private static final String PARAM_LOGIN = "login";
     private static final String PARAM_PASSWORD = "password";
-    private static final int MAX_INACTIVE_INTERVAL = 30;
+    private static final int MAX_INACTIVE_INTERVAL = 500;
     private static final String LOGIN_PAGE_TEMPLATE = "login.html";
 
 
@@ -30,7 +29,7 @@ public class LoginServletHW extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html");
         response.getWriter().println(templateProcessor.getPage(LOGIN_PAGE_TEMPLATE, Collections.emptyMap()));
     }

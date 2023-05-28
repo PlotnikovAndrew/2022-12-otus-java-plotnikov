@@ -23,8 +23,7 @@ public class DataTemplateHibernate<T> implements DataTemplate<T> {
         var criteriaBuilder = session.getCriteriaBuilder();
         var criteriaQuery = criteriaBuilder.createQuery(clazz);
         var root = criteriaQuery.from(clazz);
-        criteriaQuery.select(root)
-                .where(criteriaBuilder.equal(root.get(entityFieldName), entityFieldValue));
+        criteriaQuery.select(root).where(criteriaBuilder.equal(root.get(entityFieldName), entityFieldValue));
 
         var query = session.createQuery(criteriaQuery);
         return query.getResultList();

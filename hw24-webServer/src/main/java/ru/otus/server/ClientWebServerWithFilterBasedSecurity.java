@@ -59,8 +59,7 @@ public class ClientWebServerWithFilterBasedSecurity implements ClientWebServer{
 
         HandlerList handlers = new HandlerList();
         handlers.addHandler(resourceHandler);
-        handlers.addHandler(applySecurity(servletContextHandler, "/clients", "/api/clients/*"));
-
+        handlers.addHandler(applySecurity(servletContextHandler, "/clients"));
 
         server.setHandler(handlers);
         return server;
