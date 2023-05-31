@@ -15,14 +15,16 @@ import java.util.*;
 
 public class ClientsServlet extends HttpServlet {
 
-    private static final String USERS_PAGE_TEMPLATE = "client.html";
+    private static final String CLIENTS_PAGE_TEMPLATE = "client.html";
 
     private final DBServiceClient dbServiceClient;
     private final TemplateProcessor templateProcessor;
+    private final Gson gson;
 
-    public ClientsServlet(TemplateProcessor templateProcessor, DBServiceClient dbServiceClient) {
+    public ClientsServlet(TemplateProcessor templateProcessor, DBServiceClient dbServiceClient, Gson gson) {
         this.templateProcessor = templateProcessor;
         this.dbServiceClient = dbServiceClient;
+        this.gson = gson;
     }
 
     @Override
@@ -33,7 +35,7 @@ public class ClientsServlet extends HttpServlet {
         paramsMap.put("clients", clients);
 
         resp.setContentType("text/html");
-        resp.getWriter().println(templateProcessor.getPage(USERS_PAGE_TEMPLATE, paramsMap));
+        resp.getWriter().println(templateProcessor.getPage(CLIENTS_PAGE_TEMPLATE, paramsMap));
     }
 
     @Override
@@ -48,12 +50,10 @@ public class ClientsServlet extends HttpServlet {
 
         String requestBody = sb.toString();
 
-        Gson gson = new Gson();
-        Client newClient = gson.fromJson(requestBody, Client.class);
+        Client newClient = this.gson.fromJson(requestBody, Client.class);
 
         dbServiceClient.saveClient(newClient);
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp.sendRedirect("/clients");
     }
 }

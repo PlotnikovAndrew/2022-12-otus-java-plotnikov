@@ -18,9 +18,13 @@
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify(client)
+        }).then(res => {
+            if(!res.ok) {
+                throw Error(res.statusText);
+            }
+            window.location.reload(true);
         });
-        window.location.reload(true);
-    }
+}
 
 </script>
 

@@ -32,7 +32,7 @@ public class ClientWebServerWithFilterBasedSecurity implements ClientWebServer{
         this.dbServiceClient = dbServiceClient;
         this.gson = gson;
         this.templateProcessor = templateProcessor;
-        server = new Server(port);
+        this.server = new Server(port);
     }
     @Override
     public void start() throws Exception {
@@ -82,7 +82,7 @@ public class ClientWebServerWithFilterBasedSecurity implements ClientWebServer{
 
     private ServletContextHandler createServletContextHandler() {
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        servletContextHandler.addServlet(new ServletHolder(new ClientsServlet(templateProcessor, dbServiceClient)), "/clients");
+        servletContextHandler.addServlet(new ServletHolder(new ClientsServlet(templateProcessor, dbServiceClient, gson)), "/clients");
         return servletContextHandler;
     }
 }
