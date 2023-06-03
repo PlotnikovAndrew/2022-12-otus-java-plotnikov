@@ -11,6 +11,7 @@ import ru.otus.config.AppConfig;
 import ru.otus.services.*;
 
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -77,7 +78,7 @@ class AppTest {
 
     @DisplayName("При попытке достать из контекста отсутствующий или дублирующийся компонент, должно выкидываться исключение")
     @Test
-    public void shouldThrowExceptionWhenContainerContainsMoreThanOneOrNoneExpectedComponents() {
+    public void shouldThrowExceptionWhenContainerContainsMoreThanOneOrNoneExpectedComponents() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         var ctx = new AppComponentsContainerImpl(ConfigWithTwoSameComponents.class);
 
         assertThatCode(()-> ctx.getAppComponent(EquationPreparer.class))
