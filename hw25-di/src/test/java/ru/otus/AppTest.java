@@ -78,7 +78,7 @@ class AppTest {
 
     @DisplayName("При попытке достать из контекста отсутствующий или дублирующийся компонент, должно выкидываться исключение")
     @Test
-    public void shouldThrowExceptionWhenContainerContainsMoreThanOneOrNoneExpectedComponents() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public void shouldThrowExceptionWhenContainerContainsMoreThanOneOrNoneExpectedComponents() throws Exception {
         var ctx = new AppComponentsContainerImpl(ConfigWithTwoSameComponents.class);
 
         assertThatCode(()-> ctx.getAppComponent(EquationPreparer.class))
