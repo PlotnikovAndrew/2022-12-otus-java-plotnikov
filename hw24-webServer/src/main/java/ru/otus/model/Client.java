@@ -1,4 +1,4 @@
-package ru.otus.crm.model;
+package ru.otus.model;
 
 
 import jakarta.persistence.*;
@@ -14,8 +14,7 @@ import java.util.List;
 public class Client implements Cloneable {
 
     @Id
-    @SequenceGenerator(name = "client_gen", sequenceName = "client_seq",
-            initialValue = 1, allocationSize = 1)
+    @SequenceGenerator(name = "client_gen", sequenceName = "client_seq", initialValue = 1, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_gen")
     @Column(name = "id")
     private Long id;
@@ -35,40 +34,55 @@ public class Client implements Cloneable {
         this.name = name;
     }
 
-    public Client(Long id, String name, Address address, List<Phone> phoneList){
+    public Client(Long id, String name, Address address, List<Phone> phoneList) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.phoneList = phoneList;
-        for (Phone phone : this.phoneList){
+        for (Phone phone : this.phoneList) {
             phone.setClient(this);
         }
     }
+
+    public Client(Long id, String name, Address address, Phone phone) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.phoneList.add(phone);
+    }
+
 
     public Client(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
+    public String getStreetString() {
+        return this.address.getStreet();
+    }
+
+    public String getPhonesString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Phone phone : this.phoneList) {
+            stringBuilder.append(phone.getPhoneNumber()).append(" ");
+        }
+        return stringBuilder.toString();
+    }
+
     @Override
     public Client clone() {
         Client newClient = new Client(this.id, this.name);
-        if(this.address != null){
+        if (this.address != null) {
             newClient.setAddress(new Address(this.address.getId(), this.address.getStreet()));
         }
-        if(this.phoneList != null){
-            newClient.setPhoneList(this.getPhoneList().stream()
-                    .map(oldPhoneList -> new Phone(oldPhoneList.getId(), oldPhoneList.getPhoneNumber(), newClient))
-                    .toList());
+        if (this.phoneList != null) {
+            newClient.setPhoneList(this.getPhoneList().stream().map(oldPhoneList -> new Phone(oldPhoneList.getId(), oldPhoneList.getPhoneNumber(), newClient)).toList());
         }
         return newClient;
     }
 
     @Override
     public String toString() {
-        return "Client{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return "Client{" + "id=" + id + ", name='" + name + '\'' + '}';
     }
 }

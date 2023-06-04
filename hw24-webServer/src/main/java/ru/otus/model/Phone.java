@@ -1,4 +1,4 @@
-package ru.otus.crm.model;
+package ru.otus.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,6 +24,11 @@ public class Phone {
 
     public Phone(Long id, String phoneNumber) {
         this.id = id;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Phone(String phoneNumber) {
+        this.id = null;
         this.phoneNumber = phoneNumber;
     }
 
