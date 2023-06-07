@@ -48,7 +48,7 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
     }
 
     @Override
-    public <C> C getAppComponent(Class<C> componentClass) throws Exception {
+    public <C> C getAppComponent(Class<C> componentClass) {
         List<Object> objectList = new ArrayList<>();
         for (Object component : appComponents) {
             if (componentClass.isAssignableFrom(component.getClass())) {
