@@ -11,9 +11,9 @@ create table address
     client_id bigint not null references client(id)
 );
 
-create table phones
+create table phone
 (
     id   bigserial not null primary key,
-    street varchar(50),
+    number varchar(50),
     client_id bigint not null references client(id)
 );

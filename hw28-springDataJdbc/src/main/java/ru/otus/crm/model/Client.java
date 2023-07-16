@@ -1,91 +1,83 @@
 package ru.otus.crm.model;
 
-
-import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
-import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-@Getter
-@Setter
 @Table("client")
-public class Client implements Cloneable, Persistable<Long> {
+public class Client {
 
     @Id
     private Long id;
-
     private String name;
-
-    @MappedCollection(idColumn = "client_id")
+    @MappedCollection(idColumn = "id", keyColumn = "id")
+    private Set<Phone> numbers;
+    @MappedCollection(idColumn = "id", keyColumn = "id")
     private Address address;
 
-    @MappedCollection(idColumn = "client_id")
-    private Set<Phone> phoneSet;
+    @PersistenceCreator
+    public Client(Long id, String name, Set<Phone> numbers, Address address){
+        this.id = id;
+        this.name = name;
+        this.numbers = numbers;
+        this.address = address;
+    }
 
-    public Client(String name) {
+    public Client(String name, Set<Phone> numbers, Address address){
         this.id = null;
         this.name = name;
-    }
-
-    @PersistenceCreator
-    public Client(Long id, String name, Address address, Set<Phone> phoneSet) {
-        this.id = id;
-        this.name = name;
+        this.numbers = numbers;
         this.address = address;
-        this.phoneSet = phoneSet;
-        for (Phone phone : this.phoneSet) {
-            phone.setClientId(this.getId());
-        }
     }
 
-    public Client(Long id, String name, Address address, Phone phone) {
-        this.id = id;
+    public Client(String name){
+        this.id = null;
         this.name = name;
-        this.address = address;
-        this.phoneSet.add(phone);
+        this.numbers = null;
+        this.address = null;
     }
 
-    private Client(Long id, String name) {
-        this.id = id;
-        this.name = name;
+    public Long getId() {
+        return id;
     }
 
-    public String getStreetString() {
-        return this.address.getStreet();
+    public String getName() {
+        return name;
     }
 
-    public String getPhonesString() {
+    public Set<Phone> getNumbers() {
+        return numbers;
+    }
+    public String getNumbersString(){
         StringBuilder stringBuilder = new StringBuilder();
-        for (Phone phone : this.phoneSet) {
-            stringBuilder.append(phone.getPhoneNumber()).append(" ");
+        for(Phone phone : numbers){
+            stringBuilder.append(phone.getNumber());
+            stringBuilder.append(" ");
         }
         return stringBuilder.toString();
     }
 
-    @Override
-    public Client clone() {
-        Client newClient = new Client(this.id, this.name);
-        if (this.address != null) {
-            newClient.setAddress(new Address(this.address.getId(), this.address.getStreet(), this.id));
-        }
-        if (this.phoneSet != null) {
-            newClient.setPhoneSet(this.getPhoneSet().stream().map(oldPhoneList -> new Phone(oldPhoneList.getId(), oldPhoneList.getPhoneNumber(), newClient.getId())).collect(Collectors.toSet()));
-        }
-        return newClient;
+    public Address getAddress() {
+        return address;
     }
 
-    @Override
-    public String toString() {
-        return "Client{" + "id=" + id + ", name='" + name + '\'' + '}';
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    @Override
-    public boolean isNew() {
-        return false;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNumbers(Set<Phone> numbers) {
+        this.numbers = numbers;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }

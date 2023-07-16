@@ -1,32 +1,52 @@
 package ru.otus.crm.model;
 
-import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-
-@Getter
-@Setter
-@ToString
-@Table(name = "phones")
+@Table("phone")
 public class Phone {
-
     @Id
     private Long id;
-
-    private String phoneNumber;
-
+    private String number;
+    @Column("client_id")
     private Long clientId;
 
-    public Phone(Long id, String phoneNumber, Long clientId) {
+    @PersistenceCreator
+    public Phone(Long id, String number, Long clientId) {
         this.id = id;
-        this.phoneNumber = phoneNumber;
+        this.number = number;
         this.clientId = clientId;
     }
 
-    public Phone(String phoneNumber) {
+    public Phone(String number, Long clientId) {
         this.id = null;
-        this.phoneNumber = phoneNumber;
+        this.number = number;
+        this.clientId = clientId;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public Long getClientId() {
+        return clientId;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public void setClientId(Long clientId) {
+        this.clientId = clientId;
+    }
 }

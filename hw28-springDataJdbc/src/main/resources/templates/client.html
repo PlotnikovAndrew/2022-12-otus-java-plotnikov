@@ -1,66 +1,71 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Клиенты</title>
-</head>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" content="text/html;">
 <body>
-
 <script>
 
-    function addUser(){
-        var userName = document.getElementById("userName").value;
-        var userAddress = document.getElementById("userAddress").value;
-        var userPhone = document.getElementById("userPhone").value;
-        const client = { id: null, name: userName ,address: {id: null,  street: userAddress }, phoneList: [{ id: null, phoneNumber: userPhone }]};
-        JSON.stringify(client)
-        fetch('/clients', {
+function add(){
+        var clientName = document.getElementById("clientName").value;
+        var clientAddress = document.getElementById("clientAddress").value;
+        var clientPhone = document.getElementById("clientPhone").value;
+        var clientPhoneExtraFirst = document.getElementById("clientPhoneExtraFirst").value;
+        var clientPhoneExtraSecond = document.getElementById("clientPhoneExtraSecond").value;
+        const json = {name: clientName,
+                    address: clientAddress,
+                    phoneNumber: clientPhone,
+                    phoneNumberExtraFirst: clientPhoneExtraFirst,
+                    phoneNumberExtraSecond: clientPhoneExtraSecond};
+
+        fetch('/client/add', {
               method: 'POST',
+              body: JSON.stringify(json),
               headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(client)
-        }).then(res => {
-            if(!res.ok) {
-                throw Error(res.statusText);
-            }
-            window.location.reload(true);
+                'Content-Type': "application/json; charset=UTF-8"
+              }
+        })
+            .then(res => {
+                if(!res.ok) {
+                    throw Error(res.statusText);
+                }
+                window.location.reload(true);
         });
 }
-
 </script>
 
-<pre id = "userDataContainer"></pre>
-<table id="table" class="display" style="width:800px">
-    <thead>
-    <tr>
-        <td style="width: 200px">Id</td>
-        <td style="width: 200px">Имя</td>
-        <td style="width: 200px">Адрес</td>
-        <td style="width: 200px">Номер телефона</td>
-    </tr>
-    </thead>
-    <tbody>
-    <#list clients>
-    <#items as client>
-    <tr>
-        <td style="width: 200px">${client.id}</td>
-        <td style="width: 200px">${client.name}</td>
-        <td style="width: 200px">${client.getStreetString()}</td>
-        <td style="width: 200px">${client.getPhonesString()}</td>
-    </tr>
-    </#items>
-</#list>
-    </tbody>
+    <form name="addClient">
+        <div id="profileClient">
+            <h4>Добавить пользователя</h4>
+            <input type="text" id = "clientName" name = "name" placeholder="Введите имя клиента" style="width:800px"><br>
+            <input type="text" id = "clientAddress" name="address" placeholder="Введите адрес клиента" style="width:800px"><br>
+            <input type="text" id = "clientPhone" name="phoneNumber" placeholder="Введите номер телефона клиента" style="width:800px"><br>
+            <input type="text" id = "clientPhoneExtraFirst" name="phoneNumberExtraFirst" placeholder="Введите дополнительный номер телефона клиента" style="width:800px"><br>
+            <input type="text" id = "clientPhoneExtraSecond" name="phoneNumberExtraSecond" placeholder="Введите дополнительный номер телефона клиента" style="width:800px"><br>
+        </div>
+        <button onclick = 'add()' >Добавить</button>
+    </form>
 
-</table>
 
-<h4>Добавить пользователя</h4>
-<input type="text" id = "userName" placeholder="Введите имя клиента"><br>
-<input type="text" id = "userAddress" placeholder="Введите адрес клиента"><br>
-<input type="text" id = "userPhone" placeholder="Введите номер телефона клиента"><br>
-
-<button onclick="addUser()">Добавить</button>
-
-</table>
+    <form name="getClients">
+        <div id="container" >
+            <h4>Список клиентов</h4>
+            <table id="table" class="display" style="width:800px" >
+                <thead>
+                <tr>
+                    <th style="width: 50px">ID</th>
+                    <th style="width: 100px">Имя</th>
+                    <th style="width: 100px">Адресс</th>
+                    <th style="width: 100px">Номер телефона</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="client : ${clients}">
+                    <td align="center"th:text="${client.id}"></td>
+                    <td align="center"th:text="${client.name}"></td>
+                    <td align="center"th:text="${client.address.street}"></td>
+                    <td align="center" th:text="${client.getNumbersString}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
 
 </body>
 </html>
